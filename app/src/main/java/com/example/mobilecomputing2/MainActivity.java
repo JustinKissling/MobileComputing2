@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         initUI();
 
+        Log.i("ACTIVITY", "Activity Started");
         checkPermissions();
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -98,11 +99,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * This method checks and grants all necessary permissions
      */
     private void checkPermissions() {
-        // Check and grant internet permission
+        // If permission not granted yet
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
                 != PackageManager.PERMISSION_GRANTED) {
+            // Request permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
+            // If permission already granted
+        } else {
+            // Start service
+            Intent i = new Intent(this, SensorService.class);
+            startService(i);
         }
 
     }
@@ -116,11 +123,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Intent i = new Intent(this, SensorService.class);
                     startService(i);
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
-                return;
+                break;
             }
         }
     }

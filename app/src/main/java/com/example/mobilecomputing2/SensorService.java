@@ -29,6 +29,8 @@ public class SensorService extends Service {
     @Override
     public void onCreate() {
 
+        Log.i("SENSOR_SERVICE", "SensorService started");
+
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         locationListener = new LocationListener() {
