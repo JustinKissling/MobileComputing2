@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,10 +18,14 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-public class SensorService extends Service {
+public class SensorService extends Service implements SensorEventListener {
 
     private LocationListener locationListener;
     private LocationManager locationManager;
+    private SensorManager sensorManager;
+
+    private Sensor accelSensor;
+    private Sensor gyroSensor;
 
     @Nullable
     @Override
@@ -28,10 +36,17 @@ public class SensorService extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public void onCreate() {
+        // Init managers
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        Log.i("SENSOR_SERVICE", "SensorService started");
+        // Init sensors
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // Register listeners for sensors
+        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         locationListener = new LocationListener() {
             @Override
@@ -68,5 +83,30 @@ public class SensorService extends Service {
         if(locationManager != null) {
             locationManager.removeUpdates(locationListener);
         }
+
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // If accelerometer values changed
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            Intent i = new Intent("current_accelerometer");
+            i.putExtra("accelerometer", "X: " + String.valueOf(event.values[0]) + "; Y: " + String.valueOf(event.values[1]) + "; Z: " + String.valueOf(event.values[2]));
+            sendBroadcast(i);
+        }
+
+        // If gyroscope values changed
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            Intent i = new Intent("current_gyroscope");
+            i.putExtra("gyroscope", "X: " + String.valueOf(event.values[0]) + "; Y: " + String.valueOf(event.values[1]) + "; Z: " + String.valueOf(event.values[2]));
+            sendBroadcast(i);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }

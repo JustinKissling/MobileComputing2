@@ -21,14 +21,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity {
 
     private TextView textAccel;
     private TextView textGPS;
-
-    private SensorManager sensorManager;
-
-    private Sensor accelSensor;
+    private TextView textGyro;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -37,51 +34,52 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
-
-        Log.i("ACTIVITY", "Activity Started");
         checkPermissions();
-
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
     private void initUI() {
-        textGPS = findViewById(R.id.textGPS);
-        textGPS.setText("GPS coordinates: unknown");
-
+        textGPS = (TextView) findViewById(R.id.textGPS);
         textAccel = (TextView) findViewById(R.id.textAccel);
-    }
+        textGyro = (TextView) findViewById(R.id.textGyro);
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        textAccel.setText(String.valueOf(event.values[0]));
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        textGPS.setText("GPS coordinates: unknown");
+        textAccel.setText("Acceleration data: unknown");
+        textGyro.setText("Gyroscope data: unknown");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         if (broadcastReceiver == null) {
             broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    textGPS.setText("GPS coordinates: " + intent.getExtras().get("coordinates"));
+                    // If GPS coordinates received
+                    if (intent.getExtras().get("coordinates") != null) {
+                        textGPS.setText("GPS coordinates: " + intent.getExtras().get("coordinates"));
+                    }
+                    // If accelerometer values received
+                    if (intent.getExtras().get("accelerometer") != null) {
+                        textAccel.setText("Acceleration data: " + intent.getExtras().get("accelerometer"));
+                    }
+                    // If gyroscope values received
+                    if (intent.getExtras().get("gyroscope") != null) {
+                        textGyro.setText("Gyroscope data: " + intent.getExtras().get("gyroscope"));
+                    }
                 }
             };
         }
 
+        // Register receiver for all Intents
         registerReceiver(broadcastReceiver, new IntentFilter("current_coordinates"));
+        registerReceiver(broadcastReceiver, new IntentFilter("current_accelerometer"));
+        registerReceiver(broadcastReceiver, new IntentFilter("current_gyroscope"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener(this);
     }
 
     @Override

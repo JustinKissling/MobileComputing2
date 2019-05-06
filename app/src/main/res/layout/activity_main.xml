@@ -23,7 +23,7 @@
                 android:id="@+id/textAccel"
                 android:layout_width="wrap_content"
                 android:layout_height="16dp"
-                android:text="Hello World!" />
+                android:text="Text Accel!" />
 
         </TableRow>
 
@@ -35,7 +35,7 @@
                 android:id="@+id/textGPS"
                 android:layout_width="wrap_content"
                 android:layout_height="16dp"
-                android:text="Hello World!" />
+                android:text="Text GPS" />
 
         </TableRow>
 
@@ -44,22 +44,11 @@
             android:layout_height="match_parent" >
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/textGyro"
                 android:layout_width="wrap_content"
                 android:layout_height="16dp"
-                android:text="Hello World!" />
+                android:text="Text Gyro" />
 
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="16dp"
-                android:text="Hello World!" />
         </TableRow>
     </TableLayout>
 
