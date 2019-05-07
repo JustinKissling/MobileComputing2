@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
         }
+        timerHandler.removeCallbacks(timerRunnable);
 
         Intent i = new Intent(this, SensorService.class);
         stopService(i);
