@@ -17,6 +17,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,9 +30,31 @@ public class MainActivity extends AppCompatActivity {
     private TextView textGPS;
     private TextView textGyro;
 
+    private String currentGPS = "";
+    private String currentAccel = "";
+    private String currentGyro = "";
+
     private static final int PERMISSION_REQUEST_CODE = 1;
 
+    private static final int PERIOD = 2000;
+
+    private Handler mHandlerThread;
+
     private BroadcastReceiver broadcastReceiver;
+
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            textGPS.setText(currentGPS);
+            textAccel.setText(currentAccel);
+            textGyro.setText(currentGyro);
+
+            timerHandler.postDelayed(this, PERIOD);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
                 startService(i);
             }
         }
+
+        timerHandler.postDelayed(timerRunnable, 0);
 
     }
 
@@ -71,15 +96,15 @@ public class MainActivity extends AppCompatActivity {
                 public void onReceive(Context context, Intent intent) {
                     // If GPS coordinates received
                     if (intent.getExtras().get("coordinates") != null) {
-                        textGPS.setText("GPS coordinates: " + intent.getExtras().get("coordinates"));
+                        currentGPS = "GPS coordinates: " + intent.getExtras().get("coordinates");
                     }
                     // If accelerometer values received
                     if (intent.getExtras().get("accelerometer") != null) {
-                        textAccel.setText("Acceleration data: " + intent.getExtras().get("accelerometer"));
+                        currentAccel = "Acceleration data: " + intent.getExtras().get("accelerometer");
                     }
                     // If gyroscope values received
                     if (intent.getExtras().get("gyroscope") != null) {
-                        textGyro.setText("Gyroscope data: " + intent.getExtras().get("gyroscope"));
+                        currentGyro = "Gyroscope data: " + intent.getExtras().get("gyroscope");
                     }
                 }
             };
@@ -94,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
     }
 
     @Override
@@ -120,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     private void requestPermission() {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET)) {
-            Toast.makeText(this, "Write External Storage permission is important because we need to write the downloaded file in external storage.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "This app requires permission to access your GPS data.", Toast.LENGTH_LONG).show();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.INTERNET}, PERMISSION_REQUEST_CODE);
         }
