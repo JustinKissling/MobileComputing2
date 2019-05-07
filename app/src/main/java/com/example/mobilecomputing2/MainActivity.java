@@ -15,9 +15,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -27,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textGPS;
     private TextView textGyro;
 
+    private static final int PERMISSION_REQUEST_CODE = 1;
+
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -34,7 +38,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
-        checkPermissions();
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (!checkPermission())
+            {
+                requestPermission();
+            } else {
+                Intent i = new Intent(this, SensorService.class);
+                startService(i);
+            }
+        }
+
     }
 
     private void initUI() {
@@ -93,37 +107,37 @@ public class MainActivity extends AppCompatActivity {
         stopService(i);
     }
 
-    /**
-     * This method checks and grants all necessary permissions
-     */
-    private void checkPermissions() {
-        // If permission not granted yet
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Request permission
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.INTERNET, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
-            // If permission already granted
-        } else {
-            // Start service
-            Intent i = new Intent(this, SensorService.class);
-            startService(i);
-        }
 
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void requestPermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.INTERNET)) {
+            Toast.makeText(this, "Write External Storage permission is important because we need to write the downloaded file in external storage.", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.INTERNET}, PERMISSION_REQUEST_CODE);
+        }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case 10: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("value", "Permission Granted");
                     Intent i = new Intent(this, SensorService.class);
                     startService(i);
+                } else {
+                    Log.e("value", "Permission Denied");
                 }
                 break;
-            }
         }
     }
 }
