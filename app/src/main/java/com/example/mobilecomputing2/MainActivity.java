@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textAccel;
     private TextView textGPS;
     private TextView textGyro;
+    private SeekBar seekBar;
 
     private String currentGPS = "";
     private String currentAccel = "";
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
 
-    private static final int PERIOD = 2000;
+    private static int PERIOD = 2000;
 
     private Handler mHandlerThread;
 
@@ -80,10 +82,29 @@ public class MainActivity extends AppCompatActivity {
         textGPS = (TextView) findViewById(R.id.textGPS);
         textAccel = (TextView) findViewById(R.id.textAccel);
         textGyro = (TextView) findViewById(R.id.textGyro);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
 
         textGPS.setText("GPS coordinates: unknown");
         textAccel.setText("Acceleration data: unknown");
         textGyro.setText("Gyroscope data: unknown");
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                PERIOD = progress*1000;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+
+        });
     }
 
     @Override

@@ -46,10 +46,34 @@
             <TextView
                 android:id="@+id/textGyro"
                 android:layout_width="wrap_content"
-                android:layout_height="16dp"
+                android:layout_height="32dp"
                 android:text="Text Gyro" />
 
         </TableRow>
+        <TextView
+            android:id="@+id/textDelay"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:text="Delay in seconds (1-10):" />
+        <TableRow>
+
+        </TableRow>
+
+        <TableRow>
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:min="1"
+                android:max="10"
+                android:progress="2"
+                tools:layout_editor_absoluteX="300dp"
+                tools:layout_editor_absoluteY="66dp" />
+        </TableRow>
+
     </TableLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
