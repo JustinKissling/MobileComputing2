@@ -131,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
             };
         }
 
+        timerHandler.postDelayed(timerRunnable, 0);
+
         // Register receiver for all Intents
         registerReceiver(broadcastReceiver, new IntentFilter("current_coordinates"));
         registerReceiver(broadcastReceiver, new IntentFilter("current_accelerometer"));
